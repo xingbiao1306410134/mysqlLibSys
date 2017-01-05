@@ -1,0 +1,57 @@
+create table admin(				#管理员@author:镖
+a_num int auto_increment primary key,			#编号
+a_name char(20) not null,				#名字
+a_tel char(11),						#练习方式
+a_password char(50) not null,				#密码
+a_sex enum('male','female') default "male",		#性别
+a_other varchar(10),					#备注
+a_permission int not null default 0			#权限 越大权限越高
+);
+
+create table reader(				#读者@author:镖
+r_num int primary key auto_increment,			#编号
+r_name char(20) not null,				#姓名
+r_tel char(11),						#联系方式
+r_sex enum('male','female') default "male",		#性别
+r_password char(30) not null,				#密码
+r_time_get date not null,				#办证时间
+r_time_exp date not null,				#有效期
+r_gtimes int default 0,					#借阅次数
+r_other varchar(10)					#备注
+);
+
+create table book(				#书籍@author:镖
+b_num int auto_increment primary key,			#书籍编号
+b_name char(50) not null,				#书籍名称
+b_author char(50),					#书籍作者
+b_otimes int not null default 0,			#书籍借出次数
+b_remain int not null default 0,			#书籍剩余量
+b_all int not null default 0,				#书籍所有量
+b_press char(30),					#出版社名称
+b_published_date date,					#出版时间
+b_price double,						#价格
+b_other varchar(20)					#备注
+);
+
+create table borrow(				#借书
+bo_num int auto_increment primary key,			#主键
+bo_book_num int not null,				#书籍编号
+bo_reader_num int not null,				#读者编号
+bo_time datetime not null,		#借书时间
+bo_return_time datetime not null,			#应还时间
+bo_times_renew int not null default 0,			#续借次数
+bo_other varchar(10)					#备注
+);
+
+create table book_return(			#归还@author:镖
+bor_num int auto_increment primary key,			#主键,编号
+bor_book_num int not null,				#书籍编号
+bor_reader_num int not null,				#读者编号
+bor_time datetime not null,				#借书时间
+bor_return_time datetime not null,			#应还时间
+bor_really_return_time datetime not null,		#归还时间
+bor_penalty int,					#违约金
+bor_times_renew int not null default 0,			#续借次数
+bor_other varchar(10)					#备注
+);
+

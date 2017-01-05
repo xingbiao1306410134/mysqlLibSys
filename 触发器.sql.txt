@@ -1,0 +1,33 @@
+delimiter $$
+create trigger triInsertAfter_borrow		#借书后对书籍数量更新(增加)insert_after
+after insert on borrow
+for each row
+begin
+update book set b_remain = b_remain - 1, b_otimes = b_otimes+1 where b_num = new.bo_book_num;
+end;
+$$
+create trigger triDeleteAfter_borrow		#还书后对书籍数量更新(减少)delete_after
+after delete on borrow
+for each row
+begin
+update book set b_remain = b_remain - 1 where b_num = old.bo_book_num;
+end;
+$$
+
+create trigger triDeleteBefore_book		#删除书籍后删除所有的借阅信息
+        before delete on book for each row
+begin
+delete from borrow where bo_book_num = old.b_num;
+delete from book_return where bor_book_num = old.b_num;
+end;
+$$
+
+
+create trigger triDeleteBefore_reader		#删除读者后删除其所有的借阅信息
+        before delete on reader for each row
+begin
+delete from borrow where bo_reader_num = old.r_num;
+delete from book_return where bor_reader_num = old.r_num;
+end;
+$$
+

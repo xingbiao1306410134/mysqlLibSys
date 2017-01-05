@@ -1,0 +1,9 @@
+#@author:镖
+alter table borrow add constraint constrain_borrow foreign key borrow(bo_book_num) references book(b_num);
+alter table borrow add constraint constrain_borrow1 foreign key borrow(bo_reader_num) references reader(r_num);
+alter table book_return add constraint constrain_bookreturn foreign key book_return(bor_reader_num) references reader(r_num);
+alter table book_return add constraint constrain_bookreturn1 foreign key book_return(bor_book_num) references book(b_num);
+alter table admin add constraint constrain_admin unique(a_name,a_password);
+
+create index book_name_index on book(b_name);
+create index book_remain_index on book(b_remain);

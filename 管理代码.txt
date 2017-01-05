@@ -1,0 +1,24 @@
+show databases;
+create database biaoDB;
+insert into mysql.user(Host,User,Password) values("%","yuliang",password("yuliang"));
+insert into mysql.user(Host,User,Password) values("%","biao",password("biao"));
+insert into mysql.user(Host,User,Password) values("%","zhouchen",password("zhouchen"));
+insert into mysql.user(Host,User,Password) values("%","shenqifan",password("shenqifan"));
+insert into mysql.user(Host,User,Password) values("%","zhangzhixing",password("zhangzhixing"));
+#update mysql.user set Host = "%" where User = "biao";
+#select * from mysql.user where mysql.user.User="biao";
+#delete from mysql.user where mysql.user.User = "sqf" and Host = "sqf";
+flush privileges;
+#grant all privileges on biaoDB.* to biao@localhost identified by 'xingbiao';
+#grant all privileges on biaoDB.* to biao@localhost identified by 'xingbiao';
+#grant all privileges on biaoDB.* to biao@localhost identified by 'xingbiao';
+#grant all privileges on biaoDB.* to biao@localhost identified by 'xingbiao';
+#grant all privileges on biaoDB.* to biao@localhost identified by 'xingbiao';
+grant select,delete,update,create,drop,insert on biaoDB.* to biao@'%' identified by 'biao';
+grant select,delete,update,create,drop,insert on biaoDB.* to shenqifan@'%' identified by 'shenqifan';
+grant select,delete,update,create,drop,insert on biaoDB.* to zhouchen@'%' identified by 'zhouchen';
+grant select,delete,update,create,drop,insert on biaoDB.* to yuliang@'%' identified by 'yuliang';
+grant select,delete,update,create,drop,insert on biaoDB.* to zhangzhixing@'%' identified by 'zhangzhixing';
+drop database biao;
+use mysql;
+

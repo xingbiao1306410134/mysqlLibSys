@@ -1,0 +1,143 @@
+delimiter $$					#功能:增加管理员@author:镖
+create function addUser(username char(20),
+	pass char(50),
+    tel char(11),
+	sex enum('male','female'),
+	permission int,
+	other varchar(10)) 
+returns int
+begin
+declare isseted int;
+set isseted = -1;
+select count(*) into isseted from admin where a_name=username;
+if(isseted <= 0) then 				#验证用户名是否已存在
+	insert into admin(a_name,a_password,a_tel,a_sex,a_permission,a_other)
+		values(username,pass,tel,sex,permission,other);
+	select a_num into isseted from admin where a_name=username and pass=a_password;
+end if;
+return isseted;
+end;
+$$
+
+
+
+
+create function userVerify(			#功能:验证管理员用户@author:镖
+	num int,
+	username char(20),
+	pass char(50))
+returns int
+begin
+declare isseted int;
+set isseted = -1;
+select count(*) into isseted from admin where (a_name = username or a_num = num) and pass = a_password;
+return isseted;
+end;
+$$
+
+
+
+
+
+create function renew_password(			#功能:更改管理员密码@author:镖
+	id int, 
+	username char(20), 
+	pass char(50),
+	newpass char(50)) 
+returns int
+begin
+if userVerify(id,username,pass) > 0 
+then	update biaoDB.admin set a_password = newpass where a_num = id or a_name = username limit 1;
+end if;
+return 1;
+end;
+$$
+
+create function fun_addReader(			#功能:增加读者用户@author:镖
+        username char(20),
+	pass char(50),
+        tel char(11),
+	sex enum('male','female'),
+        gettime date,
+        exptime date,
+	other varchar(10))
+returns int
+begin
+declare isseted int;
+set isseted = -1;
+select count(*) into isseted from reader where r_name=username;
+if(isseted <= 0) then 				#验证用户名是否已存在
+	insert into reader(r_name,r_password,r_tel,r_sex,r_time_get,r_time_exp,r_gtimes,r_other)
+		values(username,pass,tel,sex,now(),date_add(now(),INTERVAL 4 YEAR),0,other);
+	select r_num into isseted from reader where r_name=username and pass=r_password;
+end if;
+return isseted;
+end;
+$$
+
+
+
+create function fun_readerVerify(		#功能:验证读者用户@author:镖
+	num int,
+	username char(20),
+	pass char(50))
+returns int
+begin
+declare isseted int;
+set isseted = -1;
+select count(*) into isseted from reader where (r_name = username or r_num = num) and pass = r_password;
+return isseted;
+end;
+$$
+
+
+create function fun_borrow(			#功能:借书,向borrow里新增一行记录
+        bnum int,               #书籍编号
+        rnum int,               #读者编号
+        other varchar(20))      #备注
+returns int
+begin
+declare isset int;
+set isset = 1;
+select b_remain into isset from book
+        where b_num = bnum;
+if(isset < 1) then 
+        return -2;      #书库中没有要借的书籍 返回-2
+else
+        set isset = -1;
+        select count(*) into isset from borrow
+                where bo_book_num = bnum and bo_reader_num = rnum;
+        if(isset <= 0) then
+                insert into borrow(bo_book_num,bo_reader_num, bo_time,bo_return_time,bo_times_renew,bo_other)
+                        values(bnum,rnum,now(),date_add(now(),INTERVAL 1 MONTH),0,other);
+                select count(*) into isset from borrow
+                        where bo_book_num = bnum and bo_reader_num = rnum;
+        end if;
+end if;
+return isset;
+end;
+$$
+
+create function fun_renew(			#功能:续借,borrow.renew+1~<=2
+        bnum int,               #书籍编号
+        rnum int)                #读者编号
+returns int
+begin
+declare isset int;
+declare btime date;
+set isset = -1;
+select count(*) into isset from borrow
+        where bo_book_num = bnum and bo_reader_num = rnum;
+if(isset = 1) then
+        select bo_times_renew, bo_return_time into isset, btime from borrow
+        where bo_book_num = bnum and bo_reader_num = rnum;
+        if(isset < 2) then
+                update borrow set bo_times_renew = isset + 1, bo_return_time = date_add(btime,INTERVAL 1 MONTH)
+                       where bo_book_num = bnum and bo_reader_num = rnum;
+        else return -2;                 #续借超过次数 返回-2
+        end if;
+else return -1;                         #没有本人本书的借书记录 返回-1
+end if;
+return isset;
+end;
+$$

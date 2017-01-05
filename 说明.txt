@@ -1,0 +1,89 @@
+功能需求中有@author的则为已完成
+
+借书功能逻辑:
+book表存书籍库存信息
+borrow表存当前已借书籍(未归还)
+book_return表存已归还书籍(借书历史)
+
+
+
+借书违约一天0.5元(不超过书籍价格)
+默认借书违约期限时间为30天
+默认可以续借次数为2次
+
+
+#函数
+管理员新增
+管理员验证
+管理员删除
+读者新增
+读者删除
+读者验证
+借书操作(fun_borrow)
+续借
+
+#存储过程
+使用存储过程实现入库book(出库暂不实现)
+用存储过程来实现还书操作
+用存储过程来实现查书操作
+用存储过程来实现查询用户当前已借书籍
+用存储过程来实现查询用户借书历史
+
+#触发器
+借书后对书籍数量更新(增加)insert_after
+还书后对书籍数量更新(减少)delete_after
+
+
+
+
+基本表需求:基本表.sql.txt
+create table admin(				#管理员					@author:镖
+create table reader(				#读者					@author:镖
+create table book(				#书籍					@author:镖
+create table borrow(				#借书					@author:镖
+create table book_return(			#归还					@author:镖
+
+
+
+约束需求:约束.sql.txt
+
+
+
+
+
+视图需求:视图.sql.txt
+create view v_borrow				#用户当前已借书籍(未归还)		@author:镖
+create view v_history				#用户借书历史				@author:镖
+create view v_book				#书籍查询视图				@author:镖
+create view v_reader				#查询读者信息				@author:镖
+create view v_admin				#管理员信息				@author:镖
+
+
+函数需求:函数.sql.txt
+create function addUser(			#功能:增加管理员			@author:镖
+create function userVerify(			#功能:验证管理员			@author:镖
+create function renew_password(			#功能:更改管理员密码			@author:镖
+
+create function fun_addReader(			#功能:增加读者				@author:镖
+create function fun_readerVerify(		#功能:验证读者				@author:镖
+
+create function fun_borrow(			#功能:借书,检查书库,向borrow里增一行	@author:镖
+create function fun_renew(			#功能:续借,borrow.renew+1~<=2		@author:镖
+
+
+存储过程需求:存储过程.sql.txt
+create procedure addbook(			#增加书籍(入库)				@author:镖
+create procedure pro_returnBook(		#还书操作				@author:镖
+create procedure pro_seekBook(			#查书操作				@author:镖
+create procedure pro_seekBorrow(		#查询用户当前已借书籍			@author:镖
+create procedure pro_seekHistory(		#查询用户借书历史			@author:镖
+
+
+
+触发器需求:触发器.sql.txt
+create trigger triInsertAfter_borrow		#借书后对书籍数量更新(增加)insert_after	@author:镖
+create trigger triDeleteAfter_borrow		#还书后对书籍数量更新(减少)delete_after	@author:镖
+create trigger triDeleteBefore_book		#删除书籍后删除所有的借阅信息		@author:镖
+create trigger triDeleteBefore_reader		#删除读者后删除其所有的借阅信息		@author:镖
+
+

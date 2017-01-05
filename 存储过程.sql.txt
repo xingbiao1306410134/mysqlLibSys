@@ -1,0 +1,79 @@
+delimiter $$					#增加书籍@author:镖
+create procedure addbook(in bname char(50), in bauthor char(50), in ball int, in bpress char(30), in bpdate date, in bprice double, in bother varchar(20))
+begin
+insert into book(b_name,b_author,b_otimes,b_remain,b_all,b_press,b_published_date,b_price,b_other)
+	values(bname,bauthor,0,ball,ball,bpress,bpdate,bprice,bother);
+end;
+$$
+
+
+
+
+create procedure pro_returnBook(		#还书操作
+in bnum int, in rnum int, out yuan double)
+begin
+declare bt date;
+declare rt date;
+declare tr int;
+declare other varchar(20);
+
+declare price double default 0;
+
+declare rrt date;
+declare difference double default 0;
+set rrt = date(now());
+
+select bo_time,bo_return_time,bo_times_renew,bo_other           #取出借书信息
+        into bt, rt, tr, other from borrow
+        where bo_book_num = bnum and bo_reader_num = rnum;
+        
+set difference =  (to_days(rrt) - to_days(rt))*0.5;             #计算违约价格及是否合法
+select b_price into price from book where b_num = bnum;
+if(difference > 0) then
+        set yuan = difference;
+end if;
+if(yuan > price) then
+        set yuan = price;
+end if;
+
+
+delete from borrow where bo_book_num = bnum and bo_reader_num = rnum;   #删除借阅信息并插入归还信息
+insert book_return(bor_book_num,bor_reader_num,bor_time,bor_return_time,bor_really_return_time,bor_penalty,bor_times_renew,bor_other)
+        values(bnum,rnum,bt,rt,rrt,yuan,tr,other);
+end;
+$$
+
+
+create procedure pro_seekBook(			#查书操作
+        in num int,                     #书籍编号
+        in bookname char(50),           #书籍名称
+        in author char(50),             #书籍作者
+        in press char(30),              #出版社
+        in publishedDate date)          #出版时间
+begin
+select * from v_book where 
+        (num is null or 书籍编号 = num) and
+        (bookname is null or 书籍名称 like concat( '%', bookname, '%' )) and
+        (author is null or 书籍作者 like concat( '%', author, '%' )) and
+        (press is null or 出版社 = press) and
+        (publishedDate is null or 出版时间 > publishedDate);
+end;
+$$
+
+
+create procedure pro_seekBorrow(		#查询用户当前已借书籍
+        in num int)                             #用户编号
+begin
+select * from v_borrow where 读者编号 = num;
+end;
+$$
+
+
+
+create procedure pro_seekHistory(		#查询用户借书历史
+        in num int)                             #用户编号
+begin
+select * from v_history where 读者编号 = num;
+end;
+$$
+
